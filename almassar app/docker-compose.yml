@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  php_app:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: almassar_php
+    ports:
+      - "8000:80"
+    volumes:
+      - ./backend/src:/var/www/html
+    depends_on:
+      - mysql_db
+    environment:
+      - DB_HOST=mysql_db
+      - DB_PORT=3306
+      - DB_NAME=almassar
+      - DB_USER=almassar_user
+      - DB_PASSWORD=secret
+
+  mysql_db:
+    image: mysql:8.0
+    container_name: almassar_mysql
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=rootpassword
+      - MYSQL_DATABASE=almassar
+      - MYSQL_USER=almassar_user
+      - MYSQL_PASSWORD=secret
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: almassar_pma
+    ports:
+      - "8080:80"
+    environment:
+      - PMA_HOST=mysql_db
+      - PMA_USER=root
+      - PMA_PASSWORD=rootpassword
+      - UPLOAD_LIMIT=300M
+    depends_on:
+      - mysql_db
+
+volumes:
+  mysql_data:
